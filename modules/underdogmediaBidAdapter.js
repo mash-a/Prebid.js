@@ -62,6 +62,22 @@ export const spec = {
   },
 
   getUserSyncs: function (syncOptions, serverResponses) {
+    // serverResponses[0].body.userSyncs = [{
+    //   type: 'image',
+    //   url: 'https://secure.adnxs.com/getuid?https%3A%2F%2Fudmserve.net%2Fudm%2Ffetch.pix%3Fdt%3D1%3Bapnid%3D%24UID'
+    // }, {
+    //   type: 'image',
+    //   url: 'https://sync.1rx.io/usersync2/underdogmedia'
+    // }, {
+    //   type: 'image',
+    //   url: 'https://sync.search.spotxchange.com/partner?adv_id=8587&amp;redir=https%3A%2F%2Fudmserve.net%2Fudm%2Ffetch.pix%3Fdt%3D1%3Bspotx%3D%24SPOTX_USER_ID'
+    // }, {
+    //   type: 'image',
+    //   url: 'https://sync.technoratimedia.com/services?srv=cs&amp;pid=54&amp;cb=https%3A%2F%2Fudmserve.net%2Fudm%2Ffetch.pix%3Fdt%3D1%3Bsncr%3D[USER_ID]'
+    // }, {
+    //   type: 'image',
+    //   url: 'https://ads.pubmatic.com/AdServer/js/user_sync.html?p=156505&predirect=https%3A%2F%2Fudmserve.net%2Fudm%2Ffetch.pix%3Fdt%3D1%3Bpmid%3D'
+    // }]
     if (serverResponses.length > 0 && serverResponses[0].body && serverResponses[0].body.userSyncs) {
       const userSyncs = serverResponses[0].body.userSyncs;
       const syncs = userSyncs.filter(sync => {
