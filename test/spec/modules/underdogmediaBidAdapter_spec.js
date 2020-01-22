@@ -411,4 +411,44 @@ describe('UnderdogMedia adapter', function () {
       });
     });
   });
+
+  describe('getUserSyncs', function () {
+    const syncOptsIframe = {
+      'iframeEnabled': true
+    };
+    const syncOptsPixel = {
+      'pixelEnabled': true
+    };
+    const serverResponses = [{
+      body: {
+        userSyncs: [
+          {
+            type: 'image',
+            url: 'https://test.url.com'
+          },
+          {
+            type: 'iframe',
+            url: 'https://test.url.com'
+          }
+        ]
+      }
+    }];
+
+    const emptyServerResponses = [{
+      body: ''
+    }]
+
+    it('user syncs should load only when specified', function () {
+      let iframeResult = spec.getUserSyncs(syncOptsIframe, serverResponses);
+      let pixelResult = spec.getUserSyncs(syncOptsPixel, serverResponses);
+      let iframeEmpty = spec.getUserSyncs(syncOptsIframe, emptyServerResponses);
+      expect(iframeResult[0].type).to.equal('iframe');
+      expect(iframeResult[0].url).to.contain('test.url');
+      expect(iframeResult.length).to.equal(1);
+      expect(pixelResult[0].type).to.equal('image');
+      expect(pixelResult[0].url).to.contain('test.url');
+      expect(pixelResult.length).to.equal(1);
+      expect(iframeEmpty).to.equal(false);
+    });
+  });
 });

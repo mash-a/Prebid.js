@@ -23,12 +23,13 @@
                 }
             },
             // Replace this object to test a new Adapter!
+            // TODO revert back to default hello_world.html
             bids: [{
-                bidder: 'appnexus',
-                params: {
-                    placementId: 13144370
-                }
-            }]
+                    bidder: "underdogmedia",
+                    params: {
+                        siteId: '12143'
+                    }
+                }]
 
         }];
 
@@ -46,6 +47,20 @@
 
         pbjs.que.push(function() {
             pbjs.addAdUnits(adUnits);
+            pbjs.setConfig({
+    userSync: {
+        filterSettings: {
+            iframe: {
+                bidders: '*',   // '*' means all bidders
+                filter: 'include'
+            },
+            image: {
+                bidders: '*',   // '*' means all bidders
+                filter: 'include'
+            }
+        }
+    }
+});
             pbjs.requestBids({
                 bidsBackHandler: sendAdserverRequest,
                 timeout: PREBID_TIMEOUT

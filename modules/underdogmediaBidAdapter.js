@@ -61,6 +61,29 @@ export const spec = {
     }
   },
 
+  getUserSyncs: function (syncOptions, serverResponses) {
+    if (serverResponses.length > 0 && serverResponses[0].body && serverResponses[0].body.userSyncs) {
+      const userSyncs = serverResponses[0].body.userSyncs;
+      const syncs = userSyncs.filter(sync => {
+        const {type, url} = sync;
+        if (syncOptions.iframeEnabled && type === 'iframe') {
+          return {
+            type,
+            url
+          };
+        }
+        if (syncOptions.pixelEnabled && type === 'image') {
+          return {
+            type,
+            url
+          };
+        }
+      })
+      return syncs;
+    }
+    return false;
+  },
+
   interpretResponse: function (serverResponse, bidRequest) {
     const bidResponses = [];
     bidRequest.bidParams.forEach(bidParam => {
