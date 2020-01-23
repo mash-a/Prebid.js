@@ -413,15 +413,7 @@ describe('UnderdogMedia adapter', function () {
   });
 
   describe('getUserSyncs', function () {
-    const syncOptsIframeOnly = {
-      'iframeEnabled': true
-    };
-
-    const syncOptsPixelOnly = {
-      'pixelEnabled': true
-    };
-
-    const syncOptsIframeAndPixel = {
+    const syncOptions = {
       'iframeEnabled': true,
       'pixelEnabled': true
     };
@@ -436,37 +428,25 @@ describe('UnderdogMedia adapter', function () {
           {
             type: 'iframe',
             url: 'https://test.url.com'
+          },
+          {
+            type: 'script',
+            script: '<script></script>'
           }
         ]
       }
     }];
 
-    const responseWithoutUserSyncs = [{
-      body: {}
-    }]
-
-    it('user syncs should load iframes when allowed', function () {
-      let iframeResult = spec.getUserSyncs(syncOptsIframeOnly, responseWithUserSyncs);
-      expect(iframeResult[0].type).to.equal('iframe');
-      expect(iframeResult[0].url).to.contain('test.url');
-      expect(iframeResult.length).to.equal(1);
+    it('user syncs should only load iframes and images', function () {
+      let result = spec.getUserSyncs(syncOptions, responseWithUserSyncs);
+      expect(result[0].type).to.equal('image');
+      expect(result[1].type).to.equal('iframe');
+      expect(result.length).to.equal(2);
     });
 
-    it('user syncs should load pixels when allowed', function () {
-      let pixelResult = spec.getUserSyncs(syncOptsPixelOnly, responseWithUserSyncs);
-      expect(pixelResult[0].type).to.equal('image');
-      expect(pixelResult[0].url).to.contain('test.url');
-      expect(pixelResult.length).to.equal(1);
-    });
-
-    it('user syncs should load iframes and pixels when allowed', function () {
-      let iframeAndPixelResult = spec.getUserSyncs(syncOptsIframeAndPixel, responseWithUserSyncs);
-      expect(iframeAndPixelResult.length).to.equal(2);
-    });
-
-    it('user syncs should not load pixels when none are provided', function () {
-      let iframeEmpty = spec.getUserSyncs(syncOptsIframeOnly, responseWithoutUserSyncs);
-      expect(iframeEmpty).to.equal(false);
+    it('user syncs should only load once per user', function () {
+      let result = spec.getUserSyncs(syncOptions, responseWithUserSyncs);
+      expect(result).to.equal(undefined);
     });
   });
 });
