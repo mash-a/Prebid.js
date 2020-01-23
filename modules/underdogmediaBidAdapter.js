@@ -9,6 +9,11 @@ let USER_SYNCED = false;
 
 utils.logMessage(`Initializing UDM Adapter. PBJS Version: ${prebidVersion} with adapter version: ${UDM_ADAPTER_VERSION}  Updated 20191028`);
 
+// helper function for testing user syncs
+export function resetUserSync() {
+  USER_SYNCED = false;
+}
+
 export const spec = {
   code: BIDDER_CODE,
   bidParams: [],

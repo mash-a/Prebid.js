@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { spec } from 'modules/underdogmediaBidAdapter';
+import { spec, resetUserSync } from 'modules/underdogmediaBidAdapter';
 
 describe('UnderdogMedia adapter', function () {
   let bidRequests;
@@ -413,9 +413,17 @@ describe('UnderdogMedia adapter', function () {
   });
 
   describe('getUserSyncs', function () {
-    const syncOptions = {
-      'iframeEnabled': true,
+    const syncOptionsPixelOnly = {
       'pixelEnabled': true
+    };
+
+    const syncOptionsIframeOnly = {
+      'iframeEnabled': true
+    };
+
+    const syncOptionsPixelAndIframe = {
+      'pixelEnabled': true,
+      'iframeEnabled': true
     };
 
     const responseWithUserSyncs = [{
@@ -428,25 +436,37 @@ describe('UnderdogMedia adapter', function () {
           {
             type: 'iframe',
             url: 'https://test.url.com'
-          },
-          {
-            type: 'script',
-            script: '<script></script>'
           }
         ]
       }
     }];
 
-    it('user syncs should only load iframes and images', function () {
-      let result = spec.getUserSyncs(syncOptions, responseWithUserSyncs);
+    it('user syncs should only return what is allowed', function () {
+      const result = spec.getUserSyncs(syncOptionsPixelOnly, responseWithUserSyncs);
       expect(result[0].type).to.equal('image');
-      expect(result[1].type).to.equal('iframe');
-      expect(result.length).to.equal(2);
+      expect(result.length).to.equal(1);
     });
 
     it('user syncs should only load once per user', function () {
-      let result = spec.getUserSyncs(syncOptions, responseWithUserSyncs);
+      const result = spec.getUserSyncs(syncOptionsPixelAndIframe, responseWithUserSyncs);
       expect(result).to.equal(undefined);
+    });
+
+    it('should reset USER_SYNCED flag, allowing another sync', function () {
+      resetUserSync();
+
+      const result = spec.getUserSyncs(syncOptionsIframeOnly, responseWithUserSyncs);
+      expect(result[0].type).to.equal('iframe');
+      expect(result.length).to.equal(1);
+    });
+
+    it('should return all enabled syncs', function () {
+      resetUserSync();
+
+      const result = spec.getUserSyncs(syncOptionsPixelAndIframe, responseWithUserSyncs);
+      expect(result[0].type).to.equal('image');
+      expect(result[1].type).to.equal('iframe');
+      expect(result.length).to.equal(2);
     });
   });
 });
