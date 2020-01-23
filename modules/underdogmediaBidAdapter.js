@@ -68,7 +68,7 @@ export const spec = {
       USER_SYNCED = true;
       const userSyncs = serverResponses[0].body.userSyncs;
       const syncs = userSyncs.filter(sync => {
-        const {type, url} = sync;
+        const {type} = sync;
         if (syncOptions.iframeEnabled && type === 'iframe') {
           return true
         }
@@ -140,7 +140,9 @@ function makeNotification(bid, mid, bidParam) {
   let url = mid.notification_url;
 
   const versionIndex = url.indexOf(';version=')
-  url = url.substring(0, versionIndex)
+  if (versionIndex + 1) {
+    url = url.substring(0, versionIndex)
+  }
 
   url += `;version=${UDM_ADAPTER_VERSION}`;
   url += ';cb=' + Math.random();

@@ -445,20 +445,26 @@ describe('UnderdogMedia adapter', function () {
       body: {}
     }]
 
-    it('user syncs should load only when specified', function () {
+    it('user syncs should load iframes when allowed', function () {
       let iframeResult = spec.getUserSyncs(syncOptsIframeOnly, responseWithUserSyncs);
       expect(iframeResult[0].type).to.equal('iframe');
       expect(iframeResult[0].url).to.contain('test.url');
       expect(iframeResult.length).to.equal(1);
+    });
 
+    it('user syncs should load pixels when allowed', function () {
       let pixelResult = spec.getUserSyncs(syncOptsPixelOnly, responseWithUserSyncs);
       expect(pixelResult[0].type).to.equal('image');
       expect(pixelResult[0].url).to.contain('test.url');
       expect(pixelResult.length).to.equal(1);
+    });
 
+    it('user syncs should load iframes and pixels when allowed', function () {
       let iframeAndPixelResult = spec.getUserSyncs(syncOptsIframeAndPixel, responseWithUserSyncs);
       expect(iframeAndPixelResult.length).to.equal(2);
+    });
 
+    it('user syncs should not load pixels when none are provided', function () {
       let iframeEmpty = spec.getUserSyncs(syncOptsIframeOnly, responseWithoutUserSyncs);
       expect(iframeEmpty).to.equal(false);
     });
