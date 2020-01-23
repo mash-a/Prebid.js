@@ -413,13 +413,20 @@ describe('UnderdogMedia adapter', function () {
   });
 
   describe('getUserSyncs', function () {
-    const syncOptsIframe = {
+    const syncOptsIframeOnly = {
       'iframeEnabled': true
     };
-    const syncOptsPixel = {
+
+    const syncOptsPixelOnly = {
       'pixelEnabled': true
     };
-    const serverResponses = [{
+
+    const syncOptsIframeAndPixel = {
+      'iframeEnabled': true,
+      'pixelEnabled': true
+    };
+
+    const responseWithUserSyncs = [{
       body: {
         userSyncs: [
           {
@@ -434,20 +441,25 @@ describe('UnderdogMedia adapter', function () {
       }
     }];
 
-    const emptyServerResponses = [{
-      body: ''
+    const responseWithoutUserSyncs = [{
+      body: {}
     }]
 
     it('user syncs should load only when specified', function () {
-      let iframeResult = spec.getUserSyncs(syncOptsIframe, serverResponses);
-      let pixelResult = spec.getUserSyncs(syncOptsPixel, serverResponses);
-      let iframeEmpty = spec.getUserSyncs(syncOptsIframe, emptyServerResponses);
+      let iframeResult = spec.getUserSyncs(syncOptsIframeOnly, responseWithUserSyncs);
       expect(iframeResult[0].type).to.equal('iframe');
       expect(iframeResult[0].url).to.contain('test.url');
       expect(iframeResult.length).to.equal(1);
+
+      let pixelResult = spec.getUserSyncs(syncOptsPixelOnly, responseWithUserSyncs);
       expect(pixelResult[0].type).to.equal('image');
       expect(pixelResult[0].url).to.contain('test.url');
       expect(pixelResult.length).to.equal(1);
+
+      let iframeAndPixelResult = spec.getUserSyncs(syncOptsIframeAndPixel, responseWithUserSyncs);
+      expect(iframeAndPixelResult.length).to.equal(2);
+
+      let iframeEmpty = spec.getUserSyncs(syncOptsIframeOnly, responseWithoutUserSyncs);
       expect(iframeEmpty).to.equal(false);
     });
   });

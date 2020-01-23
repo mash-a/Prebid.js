@@ -2,9 +2,10 @@ import * as utils from '../src/utils';
 import { config } from '../src/config';
 import { registerBidder } from '../src/adapters/bidderFactory';
 const BIDDER_CODE = 'underdogmedia';
-const UDM_ADAPTER_VERSION = '3.0V';
+const UDM_ADAPTER_VERSION = '3.4V';
 const UDM_VENDOR_ID = '159';
 const prebidVersion = '$prebid.version$';
+let USER_SYNCED = false;
 
 utils.logMessage(`Initializing UDM Adapter. PBJS Version: ${prebidVersion} with adapter version: ${UDM_ADAPTER_VERSION}  Updated 20191028`);
 
@@ -31,7 +32,8 @@ export const spec = {
       tid: 1,
       dt: 10,
       sid: siteId,
-      sizes: sizes.join(',')
+      sizes: sizes.join(','),
+      version: UDM_ADAPTER_VERSION
     }
 
     if (bidderRequest && bidderRequest.gdprConsent) {
@@ -62,42 +64,20 @@ export const spec = {
   },
 
   getUserSyncs: function (syncOptions, serverResponses) {
-    // serverResponses[0].body.userSyncs = [{
-    //   type: 'image',
-    //   url: 'https://secure.adnxs.com/getuid?https%3A%2F%2Fudmserve.net%2Fudm%2Ffetch.pix%3Fdt%3D1%3Bapnid%3D%24UID'
-    // }, {
-    //   type: 'image',
-    //   url: 'https://sync.1rx.io/usersync2/underdogmedia'
-    // }, {
-    //   type: 'image',
-    //   url: 'https://sync.search.spotxchange.com/partner?adv_id=8587&amp;redir=https%3A%2F%2Fudmserve.net%2Fudm%2Ffetch.pix%3Fdt%3D1%3Bspotx%3D%24SPOTX_USER_ID'
-    // }, {
-    //   type: 'image',
-    //   url: 'https://sync.technoratimedia.com/services?srv=cs&amp;pid=54&amp;cb=https%3A%2F%2Fudmserve.net%2Fudm%2Ffetch.pix%3Fdt%3D1%3Bsncr%3D[USER_ID]'
-    // }, {
-    //   type: 'image',
-    //   url: 'https://ads.pubmatic.com/AdServer/js/user_sync.html?p=156505&predirect=https%3A%2F%2Fudmserve.net%2Fudm%2Ffetch.pix%3Fdt%3D1%3Bpmid%3D'
-    // }]
-    if (serverResponses.length > 0 && serverResponses[0].body && serverResponses[0].body.userSyncs) {
+    if (!USER_SYNCED && serverResponses.length > 0 && serverResponses[0].body && serverResponses[0].body.userSyncs) {
+      USER_SYNCED = true;
       const userSyncs = serverResponses[0].body.userSyncs;
       const syncs = userSyncs.filter(sync => {
         const {type, url} = sync;
         if (syncOptions.iframeEnabled && type === 'iframe') {
-          return {
-            type,
-            url
-          };
+          return true
         }
         if (syncOptions.pixelEnabled && type === 'image') {
-          return {
-            type,
-            url
-          };
+          return true
         }
       })
       return syncs;
     }
-    return false;
   },
 
   interpretResponse: function (serverResponse, bidRequest) {
@@ -157,9 +137,12 @@ export const spec = {
 };
 
 function makeNotification(bid, mid, bidParam) {
-  var url = mid.notification_url;
+  let url = mid.notification_url;
 
-  url += UDM_ADAPTER_VERSION;
+  const versionIndex = url.indexOf(';version=')
+  url = url.substring(0, versionIndex)
+
+  url += `;version=${UDM_ADAPTER_VERSION}`;
   url += ';cb=' + Math.random();
   url += ';qqq=' + (1 / bid.cpm);
   url += ';hbt=' + config.getConfig('_bidderTimeout');
